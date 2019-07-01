@@ -35,35 +35,35 @@ jobs:
     #   - sleep 25
     #   # Run Catalog API Test
     #   - bash scripts/api_tests.sh 127.0.0.1 9081
-    - stage: docker build, deploy, and test
-      services:
-      - docker
-      install:
-        - true
-      before_script:
-      - cd mysql
-      # Build the docker image
-      - docker build -t "${SQL_IMAGE_NAME}:${TAG}" .
-      # Wait for MySQL to start, then load it with inventory data
-      - docker run -p 9041:3306 -d --name mysql -e MYSQL_ROOT_PASSWORD=password "${SQL_IMAGE_NAME}:${TAG}"
-      # Wait for MySQL to load data
-      - sleep 25
-      - cd ..
-      script:
-      # Maven Build
-      - mvn clean install
-      # Build Docker image
-      - docker build -t "${IMAGE_NAME}:${TAG}" .
-      # Start Inventory Container and Connect to local MySQL Service
-      - docker run -d -p 9081:9080 --name inventory -t --link mysql:mysql -e jdbcURL=$jdbcURL -e dbuser=$dbuser -e dbpassword=$dbpassword -e zipkinHost=$zipkinHost -e zipkinPort=$zipkinPort "${IMAGE_NAME}:${TAG}"
-      # Wait for the Inventory container to start accepting connections
-      - sleep 25
-      # Check that the Inventory container is running
-      - docker ps
-      # Check logs to see if it started properly
-      - docker logs inventory
-      # Run Inventory API Test
-      - bash scripts/api_tests.sh 127.0.0.1 9081
+    # - stage: docker build, deploy, and test
+    #   services:
+    #   - docker
+    #   install:
+    #     - true
+    #   before_script:
+    #   - cd mysql
+    #   # Build the docker image
+    #   - docker build -t "${SQL_IMAGE_NAME}:${TAG}" .
+    #   # Wait for MySQL to start, then load it with inventory data
+    #   - docker run -p 9041:3306 -d --name mysql -e MYSQL_ROOT_PASSWORD=password "${SQL_IMAGE_NAME}:${TAG}"
+    #   # Wait for MySQL to load data
+    #   - sleep 25
+    #   - cd ..
+    #   script:
+    #   # Maven Build
+    #   - mvn clean install
+    #   # Build Docker image
+    #   - docker build -t "${IMAGE_NAME}:${TAG}" .
+    #   # Start Inventory Container and Connect to local MySQL Service
+    #   - docker run -d -p 9081:9080 --name inventory -t --link mysql:mysql -e jdbcURL=$jdbcURL -e dbuser=$dbuser -e dbpassword=$dbpassword -e zipkinHost=$zipkinHost -e zipkinPort=$zipkinPort "${IMAGE_NAME}:${TAG}"
+    #   # Wait for the Inventory container to start accepting connections
+    #   - sleep 25
+    #   # Check that the Inventory container is running
+    #   - docker ps
+    #   # Check logs to see if it started properly
+    #   - docker logs inventory
+    #   # Run Inventory API Test
+    #   - bash scripts/api_tests.sh 127.0.0.1 9081
     - stage: kubernetes build, deploy, and test
       services:
       - docker
