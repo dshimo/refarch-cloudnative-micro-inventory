@@ -18,23 +18,23 @@ stages:
   - kubernetes build, deploy, and test
 jobs:
   include:
-    - stage: local build and test
-      services:
-      - mysql
-      before_script:
-      # Wait for MySQL to start, then load it with inventory data
-      - until mysql -h 127.0.0.1 -P 3306 -uroot <./mysql/scripts/load-data.sql; do echo "waiting for mysql"; sleep 1; done; echo "Loaded data into database"
-      # Wait for MySQL to load data
-      - sleep 25
-      script:
-      # Maven Build
-      - mvn clean install
-      # Start Application
-      - mvn liberty:start-server -DtestServerHttpPort=9081
-      # Wait for the Inventory container to start accepting connections
-      - sleep 25
-      # Run Catalog API Test
-      - bash scripts/api_tests.sh 127.0.0.1 9081
+    # - stage: local build and test
+    #   services:
+    #   - mysql
+    #   before_script:
+    #   # Wait for MySQL to start, then load it with inventory data
+    #   - until mysql -h 127.0.0.1 -P 3306 -uroot <./mysql/scripts/load-data.sql; do echo "waiting for mysql"; sleep 1; done; echo "Loaded data into database"
+    #   # Wait for MySQL to load data
+    #   - sleep 25
+    #   script:
+    #   # Maven Build
+    #   - mvn clean install
+    #   # Start Application
+    #   - mvn liberty:start-server -DtestServerHttpPort=9081
+    #   # Wait for the Inventory container to start accepting connections
+    #   - sleep 25
+    #   # Run Catalog API Test
+    #   - bash scripts/api_tests.sh 127.0.0.1 9081
     - stage: docker build, deploy, and test
       services:
       - docker
