@@ -28,7 +28,7 @@ jobs:
       - sleep 25
       script:
       # Maven Build
-      - mvn install
+      - mvn clean install
       # Start Application
       - mvn liberty:start-server -DtestServerHttpPort=9081
       # Wait for the Inventory container to start accepting connections
@@ -51,7 +51,7 @@ jobs:
       - cd ..
       script:
       # Maven Build
-      - mvn install
+      - mvn clean install
       # Build Docker image
       - docker build -t "${IMAGE_NAME}:${TAG}" .
       # Start Inventory Container and Connect to local MySQL Service
@@ -78,7 +78,7 @@ jobs:
       - helm install --name inventory-mysql --set mysqlRootPassword=password,mysqlUser=dbuser,mysqlPassword=password,mysqlDatabase=inventorydb stable/mysql
       script:
       # Maven Build
-      - mvn install
+      - mvn clean install
       # Build Docker image
       - docker build -t "${IMAGE_NAME}:${TAG}" .
       # Install Inventory
