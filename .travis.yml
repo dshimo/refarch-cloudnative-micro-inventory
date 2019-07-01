@@ -18,23 +18,23 @@ stages:
   - kubernetes build, deploy, and test
 jobs:
   include:
-    # - stage: local build and test
-    #   services:
-    #   - mysql
-    #   before_script:
-    #   # Wait for MySQL to start, then load it with inventory data
-    #   - until mysql -h 127.0.0.1 -P 3306 -uroot <./mysql/scripts/load-data.sql; do echo "waiting for mysql"; sleep 1; done; echo "Loaded data into database"
-    #   # Wait for MySQL to load data
-    #   - sleep 25
-    #   script:
-    #   # Maven Build
-    #   - mvn clean install
-    #   # Start Application
-    #   - mvn liberty:start-server -DtestServerHttpPort=9081
-    #   # Wait for the Inventory container to start accepting connections
-    #   - sleep 25
-    #   # Run Catalog API Test
-    #   - bash scripts/api_tests.sh 127.0.0.1 9081
+    - stage: local build and test
+      services:
+      - mysql
+      before_script:
+      # Wait for MySQL to start, then load it with inventory data
+      - until mysql -h 127.0.0.1 -P 3306 -uroot <./mysql/scripts/load-data.sql; do echo "waiting for mysql"; sleep 1; done; echo "Loaded data into database"
+      # Wait for MySQL to load data
+      - sleep 25
+      script:
+      # Maven Build
+      - mvn clean install
+      # Start Application
+      - mvn liberty:start-server -DtestServerHttpPort=9081
+      # Wait for the Inventory container to start accepting connections
+      - sleep 25
+      # Run Catalog API Test
+      - bash scripts/api_tests.sh 127.0.0.1 9081
     # - stage: docker build, deploy, and test
     #   services:
     #   - docker
@@ -64,35 +64,35 @@ jobs:
     #   - docker logs inventory
     #   # Run Inventory API Test
     #   - bash scripts/api_tests.sh 127.0.0.1 9081
-    - stage: kubernetes build, deploy, and test
-      services:
-      - docker
-      env:
-      - CHANGE_MINIKUBE_NONE_USER=true
-      install:
-        - true
-      before_script:
-      # Fetch the install script and run
-      - curl -O https://raw.githubusercontent.com/ibm-cloud-architecture/refarch-cloudnative-kubernetes/microprofile/utility_scripts/install_minikube_and_helm.sh
-      - chmod +x install_minikube_and_helm.sh
-      - bash install_minikube_and_helm.sh
-      # Install MySQL
-      - helm install --name inventory-mysql --set mysqlRootPassword=password,mysqlUser=dbuser,mysqlPassword=password,mysqlDatabase=inventorydb stable/mysql
-      script:
-      # Maven Build
-      - mvn clean install
-      # Build Docker image
-      - docker build -t "${IMAGE_NAME}:${TAG}" .
-      # Install Inventory
-      - helm install --set travis=true --set image.repository=${IMAGE_NAME} --set image.tag=${TAG} --name inv ./chart/inventory
-      # Wait for Inventory to be ready
-      - kubectl get deployments ${RELEASE_NAME}-inventory -o yaml
-      - READY=$(kubectl get deployments ${RELEASE_NAME}-inventory -o yaml | grep "readyReplicas" | awk '{print $2}')
-      - echo $READY
-      - until [ -n "$READY" ] && [ ${READY} -ge 1 ]; do READY=$(kubectl get deployments ${RELEASE_NAME}-inventory -o yaml | grep "readyReplicas" | awk '{print $2}'); kubectl get deployments -o wide; echo "Waiting for inventory to be ready"; sleep 10; done
-      # Wait for Inventory deployment to start accepting connections
-      - sleep 35
-      # Run Inventory API Test
-      - MINIKUBE_IP=$(minikube ip)
-      - NODE_PORT=$(kubectl get service ${RELEASE_NAME}-inventory -o=jsonpath='{.spec.ports[0].nodePort}')
-      - bash scripts/api_tests.sh $MINIKUBE_IP $NODE_PORT
+    # - stage: kubernetes build, deploy, and test
+    #   services:
+    #   - docker
+    #   env:
+    #   - CHANGE_MINIKUBE_NONE_USER=true
+    #   install:
+    #     - true
+    #   before_script:
+    #   # Fetch the install script and run
+    #   - curl -O https://raw.githubusercontent.com/ibm-cloud-architecture/refarch-cloudnative-kubernetes/microprofile/utility_scripts/install_minikube_and_helm.sh
+    #   - chmod +x install_minikube_and_helm.sh
+    #   - bash install_minikube_and_helm.sh
+    #   # Install MySQL
+    #   - helm install --name inventory-mysql --set mysqlRootPassword=$dbpassword,mysqlUser=dbuser,mysqlPassword=$dbpassword,mysqlDatabase=inventorydb stable/mysql
+    #   script:
+    #   # Maven Build
+    #   - mvn clean install
+    #   # Build Docker image
+    #   - docker build -t "$IMAGE_NAME:$TAG" .
+    #   # Install Inventory
+    #   - helm install --set travis=true --set image.repository=$IMAGE_NAME --set image.tag=$TAG --name $RELEASE_NAME ./chart/inventory
+    #   # Wait for Inventory to be ready
+    #   - kubectl get deployments $RELEASE_NAME-inventory -o yaml
+    #   - READY=$(kubectl get deployments ${RELEASE_NAME}-inventory -o yaml | grep "readyReplicas" | awk '{print $2}')
+    #   - echo $READY
+    #   - until [ -n "$READY" ] && [ $READY -ge 1 ]; do READY=$(kubectl get deployments $RELEASE_NAME-inventory -o yaml | grep "readyReplicas" | awk '{print $2}'); kubectl get deployments -o wide; echo "Waiting for inventory to be ready"; sleep 10; done
+    #   # Wait for Inventory deployment to start accepting connections
+    #   - sleep 35
+    #   # Run Inventory API Test
+    #   - MINIKUBE_IP=$(minikube ip)
+    #   - NODE_PORT=$(kubectl get service ${RELEASE_NAME}-inventory -o=jsonpath='{.spec.ports[0].nodePort}')
+    #   - bash scripts/api_tests.sh $MINIKUBE_IP $NODE_PORT
