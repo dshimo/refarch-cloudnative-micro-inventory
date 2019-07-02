@@ -1,6 +1,8 @@
 sudo: required
 dist: xenial
 language: java
+jdk:
+  - openjdk8
 env:
   global:
     - jdbcURL=jdbc:mysql://mysql:3306/inventorydb?useSSL=false
