@@ -5,7 +5,7 @@ jdk:
   - openjdk8
 env:
   global:
-    - jdbcURL=jdbc:mysql://mysql:3306/inventorydb?useSSL=false
+    # - jdbcURL=jdbc:mysql://mysql:3306/inventorydb?useSSL=false
     - dbuser=root
     - dbpassword=password
     - zipkinHost=localhost
@@ -23,9 +23,11 @@ jobs:
     - stage: local build and test
       services:
       - mysql
+      env:
+        - jdbcURL=jdbc:mysql://127.0.0.1:3306/inventorydb?useSSL=false
       before_script:
       # Wait for MySQL to start, then load it with inventory data
-      - until mysql -h 127.0.0.1 -P 3306 -uroot <./mysql/scripts/load-data.sql; do echo "waiting for mysql"; sleep 1; done; echo "Loaded data into database"
+      - until mysql -h 127.0.0.1 -P 3306 -uroot < ./mysql/scripts/load-data.sql; do echo "waiting for mysql"; sleep 1; done; echo "Loaded data into database"
       # Wait for MySQL to load data
       - sleep 25
       script:
@@ -37,6 +39,7 @@ jobs:
       - sleep 25
       # Run Catalog API Test
       - bash scripts/api_tests.sh 127.0.0.1 9081
+      - cat target/liberty/wlp/usr/servers/defaultServer/logs/messages.log
     # - stage: docker build, deploy, and test
     #   services:
     #   - docker
