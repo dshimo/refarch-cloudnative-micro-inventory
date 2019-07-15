@@ -27,7 +27,8 @@ jobs:
         - jdbcURL=jdbc:mysql://127.0.0.1:3306/inventorydb?useSSL=false
       before_script:
       # Wait for MySQL to start, then load it with inventory data
-      - until mysql -h 127.0.0.1 -P 3306 -uroot < ./mysql/scripts/load-data.sql; do echo "waiting for mysql"; sleep 1; done; echo "Loaded data into database"
+      - mysqladmin -uroot password password
+      - until mysql -h 127.0.0.1 -P 3306 -uroot -ppassword < ./mysql/scripts/load-data.sql; do echo "waiting for mysql"; sleep 1; done; echo "Loaded data into database"
       # Wait for MySQL to load data
       - sleep 25
       script:
