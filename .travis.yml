@@ -55,7 +55,7 @@ jobs:
       - docker run -p 9041:3306 -d --name mysql -e MYSQL_ROOT_PASSWORD=$dbpassword "$SQL_IMAGE_NAME:$TAG"
       - export GATEWAY=$(docker network inspect bridge | jq '.[].IPAM.Config' | jq '.[].Gateway' | sed 's/"//g')
       - echo $GATEWAY
-      - export jdbcURL=jdbcURL=jdbc:mysql://$GATEWAY:9041/inventorydb?useSSL=false
+      - export jdbcURL=jdbc:mysql://$GATEWAY:9041/inventorydb?useSSL=false
       - echo $jdbcURL
       - cd -
       script:
