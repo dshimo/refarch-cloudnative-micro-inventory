@@ -43,26 +43,26 @@ jobs:
       services:
       - docker
       env:
-        - SQL_IMAGE_NAME=bc-inventorydb
-        - jdbcURL=jdbc:mysql://localhost:9041/inventorydb?useSSL=false
+        - SQL_IMAGE_NAME=inventorydb
+        # - jdbcURL=jdbc:mysql://localhost:9041/inventorydb?useSSL=false
       install:
         - true
       before_script:
       - cd mysql
       # Build the docker image
       - docker build -t "$SQL_IMAGE_NAME:$TAG" .
-      # Wait for MySQL to start, then load it with inventory data
-      # Sanity check
-      - echo $dbpassword
+      # Start MySQL, then load it with inventory data
       - docker run -p 9041:3306 -d --name mysql -e MYSQL_ROOT_PASSWORD=$dbpassword "$SQL_IMAGE_NAME:$TAG"
+      - export GATEWAY=$(docker network inspect bridge | jq '.[].IPAM.Config' | jq '.[].Gateway' | sed 's/"//g')
+      - export jdbcURL=jdbcURL=jdbc:mysql://$GATEWAY:9041/inventorydb?useSSL=false
       - cd -
       script:
       # Maven Build
       - mvn clean install
       # Build Docker image
-      - docker build -t "${IMAGE_NAME}:${TAG}" .
+      - docker build -t "$IMAGE_NAME:$TAG" .
       # Start Inventory Container and Connect to local MySQL Service
-      - docker run -d -p 9081:9080 --name inventory -t --link mysql:mysql -e jdbcURL=$jdbcURL -e dbuser=$dbuser -e dbpassword=$dbpassword -e zipkinHost=$zipkinHost -e zipkinPort=$zipkinPort "${IMAGE_NAME}:${TAG}"
+      - docker run -d -p 9081:9080 --name inventory -t --link mysql:mysql -e jdbcURL=$jdbcURL -e dbuser=$dbuser -e dbpassword=$dbpassword -e zipkinHost=$zipkinHost -e zipkinPort=$zipkinPort "$IMAGE_NAME:$TAG"
       # Wait for the Inventory container to start accepting connections
       - sleep 25
       # Check that the Inventory container is running
@@ -70,7 +70,7 @@ jobs:
       # Check logs to see if it started properly
       - docker logs inventory
       # Run Inventory API Test
-      - bash scripts/api_tests.sh 127.0.0.1 9081
+      - bash scripts/api_tests.sh localhost 9081
       - docker exec -it "$IMAGE_NAME:$TAG" "cat target/liberty/wlp/usr/servers/defaultServer/logs/messages.log"
     # - stage: kubernetes build, deploy, and test
     #   services:
