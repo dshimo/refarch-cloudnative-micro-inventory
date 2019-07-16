@@ -54,7 +54,9 @@ jobs:
       # Start MySQL, then load it with inventory data
       - docker run -p 9041:3306 -d --name mysql -e MYSQL_ROOT_PASSWORD=$dbpassword "$SQL_IMAGE_NAME:$TAG"
       - export GATEWAY=$(docker network inspect bridge | jq '.[].IPAM.Config' | jq '.[].Gateway' | sed 's/"//g')
+      - echo $GATEWAY
       - export jdbcURL=jdbcURL=jdbc:mysql://$GATEWAY:9041/inventorydb?useSSL=false
+      - echo $jdbcURL
       - cd -
       script:
       # Maven Build
@@ -70,8 +72,9 @@ jobs:
       # Check logs to see if it started properly
       - docker logs inventory
       # Run Inventory API Test
+      - curl http://localhost:9081/health
       - bash scripts/api_tests.sh localhost 9081
-      - docker exec -it "$IMAGE_NAME:$TAG" "cat target/liberty/wlp/usr/servers/defaultServer/logs/messages.log"
+      - docker logs inventory
     # - stage: kubernetes build, deploy, and test
     #   services:
     #   - docker
