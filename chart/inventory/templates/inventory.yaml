@@ -36,13 +36,8 @@ spec:
         resources:
         {{- include "inventory.resources" . | indent 10 }}
         env:
-          {{- if .Values.travis }}
-          - name: rabbit
-            value: "{{ .Values.minikubeIp }}"
-          {{- else}}
           - name: rabbit
             value: "{{ .Release.Name }}-{{ .Values.service.rabbitmq }}"
-          {{- end }}
           - name: jdbcURL
             value: "jdbc:mysql://{{ .Release.Name }}-{{ .Values.service.database }}:{{ .Values.mysql.port }}/inventorydb?useSSL=false"
           - name: PORT

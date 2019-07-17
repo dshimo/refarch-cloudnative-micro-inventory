@@ -83,7 +83,7 @@ jobs:
       - chmod +x install_minikube_and_helm.sh
       - bash install_minikube_and_helm.sh
       # Install MySQL
-      - helm install --name inventory-mysql --set mysqlRootPassword=$dbpassword,mysqlUser=dbuser,mysqlPassword=$dbpassword,mysqlDatabase=inventorydb stable/mysql
+      # - helm install --name inventory-mysql --set mysqlRootPassword=$dbpassword,mysqlUser=dbuser,mysqlPassword=$dbpassword,mysqlDatabase=inventorydb stable/mysql
       - helm dependency update chart/inventory
       script:
       # Maven Build
