@@ -71,10 +71,6 @@ ingress:
     hosts:
       - inventory.bluecompute.com
 
-# For travis
-travis: false
-minikubeIp:
-
 mysql:
   image: "mysql"
   imageTag: "5.7.14"
