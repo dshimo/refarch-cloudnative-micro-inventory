@@ -103,5 +103,8 @@ jobs:
       - MINIKUBE_IP=$(minikube ip)
       - NODE_PORT=$(kubectl get service ${RELEASE_NAME}-inventory -o=jsonpath='{.spec.ports[0].nodePort}')
       - bash scripts/api_tests.sh $MINIKUBE_IP $NODE_PORT
-      - kubectl get pods | grep inv-inventory | awk '{print $1}'
-      - for s in $(kubectl get pods | grep inv-inventory | awk '{print $1}'); do echo "LOG FOR $s"; kubectl logs $s; done
+      # - kubectl get pods | grep inv-inventory | awk '{print $1}'
+      # - for s in $(kubectl get pods | grep inv-inventory | awk '{print $1}'); do echo "LOG FOR $s"; kubectl logs $s; done
+      - PODS=$(kubectl get pods | grep inv-inventory-job | awk '{print $1}')
+      - kubectl logs $PODS test-mysql
+      - kubectl logs $PODS populate-mysql
