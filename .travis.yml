@@ -83,8 +83,8 @@ jobs:
       - chmod +x install_minikube_and_helm.sh
       - bash install_minikube_and_helm.sh
       # Install MySQL
-      # - helm install --name inventory-mysql --set mysqlRootPassword=$dbpassword,mysqlUser=dbuser,mysqlPassword=$dbpassword,mysqlDatabase=inventorydb stable/mysql
-      - helm dependency update chart/inventory
+      - helm install --name inv-mysql --set mysqlRootPassword=$dbpassword,mysqlUser=dbuser,mysqlPassword=$dbpassword,mysqlDatabase=inventorydb stable/mysql
+      # - helm dependency update chart/inventory
       script:
       # Maven Build
       - mvn clean install
@@ -107,6 +107,5 @@ jobs:
       # - for s in $(kubectl get pods | grep inv-inventory | awk '{print $1}'); do echo "LOG FOR $s"; kubectl logs $s; done
       - PODS=$(kubectl get pods | grep inv-inventory-job | awk '{print $1}')
       - kubectl describe pod $PODS
-      - kubectl get pods -n kube-system
       - kubectl logs $PODS test-mysql
       - kubectl logs $PODS populate-mysql
