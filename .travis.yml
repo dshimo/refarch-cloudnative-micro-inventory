@@ -97,19 +97,13 @@ jobs:
       - READY=$(kubectl get deployments ${RELEASE_NAME}-inventory -o yaml | grep "readyReplicas" | awk '{print $2}')
       - echo $READY
       - until [ -n "$READY" ] && [ $READY -ge 1 ]; do READY=$(kubectl get deployments $RELEASE_NAME-inventory -o yaml | grep "readyReplicas" | awk '{print $2}'); kubectl get pods -o wide; echo "Waiting for inventory to be ready"; sleep 10; done
-      # Wait for Populate
+      # Wait for database population
       - COMPLETION=$(kubectl get jobs -o yaml | grep succeeded | awk '{print $2}')
       - echo $COMPLETION
       - until [ -n "$COMPLETION" ] && [ $COMPLETION -ge 1 ]; do COMPLETION=$(kubectl get jobs -o yaml | grep succeeded | awk '{print $2}'); kubectl get pods -o wide; echo "Waiting for inventory populate job to be completed"; sleep 10; done
-      # Wait for Inventory deployment to start accepting connections
-      - sleep 35
       # Run Inventory API Test
       - MINIKUBE_IP=$(minikube ip)
       - NODE_PORT=$(kubectl get service ${RELEASE_NAME}-inventory -o=jsonpath='{.spec.ports[0].nodePort}')
       - bash scripts/api_tests.sh $MINIKUBE_IP $NODE_PORT
-      # - kubectl get pods | grep inv-inventory | awk '{print $1}'
-      # - for s in $(kubectl get pods | grep inv-inventory | awk '{print $1}'); do echo "LOG FOR $s"; kubectl logs $s; done
-      - PODS=$(kubectl get pods | grep inv-inventory-job | awk '{print $1}')
-      - kubectl describe pod $PODS
-      - kubectl logs $PODS test-mysql
-      - kubectl logs $PODS populate-mysql
+      - kubectl get pods | grep inv-inventory | awk '{print $1}'
+      - for s in $(kubectl get pods | grep inv-inventory | awk '{print $1}'); do echo "LOG FOR $s"; kubectl logs $s; done
