@@ -90,8 +90,12 @@ mysql:
 
 # For deploying Inventory alone, enable RabbitMQ to pass the Inventory Health check
 rabbitmq:
-  enabled: true
+  enabled: false
   mainPort: 5672
   managePort: 15672
   epmd: 4369
   dist: 25672
+
+travis:
+  test: false
+  releaseName:

@@ -91,7 +91,7 @@ jobs:
       # Build Docker image
       - docker build -t "$IMAGE_NAME:$TAG" .
       # Install Inventory
-      - helm install --set image.repository=$IMAGE_NAME --set image.tag=$TAG --name $RELEASE_NAME ./chart/inventory
+      - helm install --set image.repository=$IMAGE_NAME,image.tag=$TAG,rabbitmq.enabled=true --name $RELEASE_NAME ./chart/inventory
       # Wait for Inventory to be ready
       - kubectl get deployments $RELEASE_NAME-inventory -o yaml
       - READY=$(kubectl get deployments ${RELEASE_NAME}-inventory -o yaml | grep "readyReplicas" | awk '{print $2}')
