@@ -97,5 +97,5 @@ rabbitmq:
   dist: 25672
 
 travis:
-  test: false
+  external: false
   releaseName:
