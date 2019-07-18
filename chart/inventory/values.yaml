@@ -88,7 +88,7 @@ mysql:
   podAnnotations:
     sidecar.istio.io/inject: "false"
 
-# For deploying Inventory alone, enable RabbitMQ to pass the Inventory Health check
+# For deploying Inventory alone on Kube, enable RabbitMQ to pass health
 rabbitmq:
   enabled: false
   mainPort: 5672
@@ -96,6 +96,7 @@ rabbitmq:
   epmd: 4369
   dist: 25672
 
+# For Travis testing with other services
 travis:
   external: false
   releaseName:
