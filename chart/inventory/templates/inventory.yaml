@@ -24,7 +24,7 @@ spec:
             port: 9080
           initialDelaySeconds: 60
           periodSeconds: 20
-          failureThreshold: 6
+          failureThreshold: 9
         livenessProbe:
           httpGet:
             path: /
