@@ -33,6 +33,7 @@ function get_inventory() {
 
 	if [ -z "${CURL}" ] || [ ! "${CURL}" -gt "0" ]; then
 		echo "get_inventory: ❌ could not get inventory";
+		echo $(curl http://${INVENTORY_HOST}:${INVENTORY_PORT}/inventory/rest/inventory);
         exit 1;
     else
     	echo "get_inventory: ✅";
